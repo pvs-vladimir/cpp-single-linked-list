@@ -65,8 +65,6 @@ class SingleLinkedList {
         }
 
         BasicIterator operator++(int) noexcept {
-            assert(node_ != nullptr);
-
             auto old_value(*this);
             ++(*this);
             return old_value;
@@ -113,9 +111,6 @@ public:
     }
 
     [[nodiscard]] Iterator begin() noexcept {
-        if (IsEmpty()) {
-            return end();
-        }
         return Iterator{head_.next_node};
     }
 
@@ -128,9 +123,6 @@ public:
     }
 
     [[nodiscard]] ConstIterator begin() const noexcept {
-        if (IsEmpty()) {
-            return end();
-        }
         return ConstIterator{head_.next_node};
     }
 
@@ -143,9 +135,6 @@ public:
     }
 
     [[nodiscard]] ConstIterator cbegin() const noexcept {
-        if (IsEmpty()) {
-            return cend();
-        }
         return ConstIterator{head_.next_node};
     }
 
@@ -182,6 +171,8 @@ public:
     }
 
     void PopFront() noexcept {
+        assert(!IsEmpty());
+
         Node* p = head_.next_node;
         head_.next_node = head_.next_node->next_node;
         delete p;
@@ -189,6 +180,8 @@ public:
     }
 
     Iterator EraseAfter(ConstIterator pos) noexcept {
+        assert(!IsEmpty());
+
         Node* p = pos.node_->next_node;
         pos.node_->next_node = pos.node_->next_node->next_node;
         delete p;
@@ -197,12 +190,12 @@ public:
     }
     
     void Clear() noexcept {
-        while (size_ != 0) {
+        while (head_.next_node) {
             Node* p = head_.next_node;
             head_.next_node = head_.next_node->next_node;
             delete p;
-            --size_;
         }
+        size_ = 0u;
     }
     
     ~SingleLinkedList() {
@@ -253,7 +246,7 @@ bool operator<(const SingleLinkedList<Type>& lhs, const SingleLinkedList<Type>& 
 
 template <typename Type>
 bool operator<=(const SingleLinkedList<Type>& lhs, const SingleLinkedList<Type>& rhs) {
-    return (lhs < rhs) || (lhs == rhs);
+    return !(rhs < lhs);
 }
 
 template <typename Type>
@@ -263,5 +256,5 @@ bool operator>(const SingleLinkedList<Type>& lhs, const SingleLinkedList<Type>& 
 
 template <typename Type>
 bool operator>=(const SingleLinkedList<Type>& lhs, const SingleLinkedList<Type>& rhs) {
-    return (lhs > rhs) || (lhs == rhs);
+    return !(lhs < rhs);
 } 
